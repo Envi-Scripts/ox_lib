@@ -48,21 +48,26 @@ end
 ---@param data MenuProps
 ---@param cb? MenuChangeFunction
 function lib.registerMenu(data, cb)
-    if isUiKitRunning() then
-        return exports['envi-ui']:registerArrowMenu(data, cb, GetInvokingResource())
-    end
-
     if not data.id then error('No menu id was provided.') end
     if not data.title then error('No menu title was provided.') end
     if not data.options then error('No menu options were provided.') end
     data.cb = cb
+    data.resource = GetInvokingResource()
     registeredMenus[data.id] = data
+
+    if isUiKitRunning() then
+        exports['envi-ui']:registerArrowMenu(data, cb, data.resource)
+    end
 end
 
 ---@param id string
 ---@param startIndex? number
 function lib.showMenu(id, startIndex)
     if isUiKitRunning() then
+        local menu = registeredMenus[id]
+        if menu then
+            exports['envi-ui']:registerArrowMenu(menu, menu.cb, menu.resource)
+        end
         return exports['envi-ui']:showArrowMenu(id, startIndex)
     end
 
@@ -132,15 +137,19 @@ end
 ---@param options MenuOptions | MenuOptions[]
 ---@param index? number
 function lib.setMenuOptions(id, options, index)
-    if isUiKitRunning() then
-        return exports['envi-ui']:setArrowMenuOptions(id, options, index)
-    end
+    local menu = registeredMenus[id]
+    if not menu then return end
 
     if index then
-        registeredMenus[id].options[index] = options
+        menu.options[index] = options
     else
         if not options[1] then error('Invalid override format used, expected table of options.') end
-        registeredMenus[id].options = options
+        menu.options = options
+    end
+
+    if isUiKitRunning() then
+        exports['envi-ui']:registerArrowMenu(menu, menu.cb, menu.resource)
+        return exports['envi-ui']:setArrowMenuOptions(id, options, index)
     end
 end
 

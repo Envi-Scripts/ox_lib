@@ -8,7 +8,9 @@
 
 local input
 
-local isUiKitRunning = GetResourceState('amzn_uikit') == 'started'
+local function isUiKitRunning()
+    return GetResourceState('envi-ui') == 'started'
+end
 
 ---@class InputDialogRowProps
 ---@field type 'input' | 'number' | 'checkbox' | 'select' | 'slider' | 'multi-select' | 'date' | 'date-range' | 'time' | 'textarea' | 'color'
@@ -44,8 +46,8 @@ local isUiKitRunning = GetResourceState('amzn_uikit') == 'started'
 ---@param options InputDialogOptionsProps[]?
 ---@return string[] | number[] | boolean[] | nil
 function lib.inputDialog(heading, rows, options)
-    if isUiKitRunning then
-        return exports.amzn_uikit:inputDialog(heading, rows, options)
+    if isUiKitRunning() then
+        return exports['envi-ui']:inputDialog(heading, rows, options)
     end
 
     if input then return end
@@ -72,8 +74,8 @@ function lib.inputDialog(heading, rows, options)
 end
 
 function lib.closeInputDialog()
-    if isUiKitRunning then
-        return exports.amzn_uikit:closeInputDialog()
+    if isUiKitRunning() then
+        return exports['envi-ui']:closeInputDialog()
     end
 
     if not input then return end

@@ -13,7 +13,9 @@ local playerState = LocalPlayer.state
 local createdProps = {}
 local maxProps = GetConvarInt('ox:progressPropLimit', 2)
 
-local isUiKitRunning = GetResourceState('amzn_uikit') == 'started'
+local function isUiKitRunning()
+    return GetResourceState('envi-ui') == 'started'
+end
 
 ---@class ProgressPropProps
 ---@field model string
@@ -79,8 +81,8 @@ local controls = {
 
 ---@param data ProgressProps
 local function startProgress(data)
-    if isUiKitRunning then
-        return exports.amzn_uikit:startProgress(data)
+    if isUiKitRunning() then
+        return exports['envi-ui']:startProgress(data)
     end
 
     playerState.invBusy = true
@@ -173,8 +175,8 @@ end
 ---@param data ProgressProps
 ---@return boolean?
 function lib.progressBar(data)
-    if isUiKitRunning then
-        return exports.amzn_uikit:progressBar(data)
+    if isUiKitRunning() then
+        return exports['envi-ui']:progressBar(data)
     end
 
     while progress ~= nil do Wait(0) end
@@ -195,8 +197,8 @@ end
 ---@param data ProgressProps
 ---@return boolean?
 function lib.progressCircle(data)
-    if isUiKitRunning then
-        return exports.amzn_uikit:progressBar(data)
+    if isUiKitRunning() then
+        return exports['envi-ui']:progressCircle(data)
     end
 
     while progress ~= nil do Wait(0) end
@@ -216,8 +218,8 @@ function lib.progressCircle(data)
 end
 
 function lib.cancelProgress()
-    if isUiKitRunning then
-        return exports.amzn_uikit:cancelProgress()
+    if isUiKitRunning() then
+        return exports['envi-ui']:cancelProgress()
     end
 
     if not progress then
@@ -229,8 +231,8 @@ end
 
 ---@return boolean
 function lib.progressActive()
-    if isUiKitRunning then
-        return exports.amzn_uikit:progressActive()
+    if isUiKitRunning() then
+        return exports['envi-ui']:progressActive()
     end
 
     return progress and true

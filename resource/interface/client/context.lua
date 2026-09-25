@@ -9,7 +9,9 @@
 local contextMenus = {}
 local openContextMenu = nil
 
-local isUiKitRunning = GetResourceState('amzn_uikit') == 'started'
+local function isUiKitRunning()
+    return GetResourceState('envi-ui') == 'started'
+end
 
 ---@class ContextMenuItem
 ---@field title? string
@@ -56,8 +58,8 @@ end
 
 ---@param id string
 function lib.showContext(id)
-    if isUiKitRunning then
-        return exports.amzn_uikit:showContext(id)
+    if isUiKitRunning() then
+        return exports['envi-ui']:showContext(id)
     end
 
     if not contextMenus[id] then error('No context menu of such id found.') end
@@ -80,8 +82,8 @@ end
 
 ---@param context ContextMenuProps | ContextMenuProps[]
 function lib.registerContext(context)
-    if isUiKitRunning then
-        return exports.amzn_uikit:registerContext(context)
+    if isUiKitRunning() then
+        return exports['envi-ui']:registerContext(context, GetInvokingResource())
     end
 
     for k, v in pairs(context) do
@@ -96,8 +98,8 @@ end
 
 ---@return string?
 function lib.getOpenContextMenu()
-    if isUiKitRunning then
-        return exports.amzn_uikit:getOpenContextMenu()
+    if isUiKitRunning() then
+        return exports['envi-ui']:getOpenContextMenu()
     end
 
     return openContextMenu
@@ -105,8 +107,8 @@ end
 
 ---@param onExit boolean?
 function lib.hideContext(onExit)
-    if isUiKitRunning then
-        return exports.amzn_uikit:hideContext(onExit)
+    if isUiKitRunning() then
+        return exports['envi-ui']:hideContext(onExit)
     end
 
     closeContext(nil, nil, onExit)

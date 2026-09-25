@@ -24,7 +24,9 @@
 ---@field items RadialItem[]
 ---@field [string] any
 
-local isUiKitRunning = GetResourceState('amzn_uikit') == 'started'
+local function isUiKitRunning()
+    return GetResourceState('envi-ui') == 'started'
+end
 
 local isOpen = false
 
@@ -44,8 +46,8 @@ local currentRadial = nil
 ---@param id string?
 ---@param option number?
 local function showRadial(id, option)
-    if isUiKitRunning then
-        return exports.amzn_uikit:showRadial(id, option)
+    if isUiKitRunning() then
+        return exports['envi-ui']:showRadial(id, option)
     end
 
     local radial = id and menus[id]
@@ -119,12 +121,13 @@ end
 ---Registers a radial sub menu with predefined options.
 ---@param radial RadialMenuProps
 function lib.registerRadial(radial)
-    if isUiKitRunning then
-        return exports.amzn_uikit:registerRadial(radial)
+    radial.resource = GetInvokingResource()
+
+    if isUiKitRunning() then
+        return exports['envi-ui']:registerRadial(radial, radial.resource)
     end
 
     menus[radial.id] = radial
-    radial.resource = GetInvokingResource()
 
     if currentRadial then
         refreshRadial(radial.id)
@@ -132,16 +135,16 @@ function lib.registerRadial(radial)
 end
 
 function lib.getCurrentRadialId()
-    if isUiKitRunning then
-        return exports.amzn_uikit:getCurrentRadialId()
+    if isUiKitRunning() then
+        return exports['envi-ui']:getCurrentRadialId()
     end
 
     return currentRadial and currentRadial.id
 end
 
 function lib.hideRadial()
-    if isUiKitRunning then
-        return exports.amzn_uikit:hideRadial()
+    if isUiKitRunning() then
+        return exports['envi-ui']:hideRadial()
     end
 
     if not isOpen then return end
@@ -161,12 +164,13 @@ end
 ---Registers an item or array of items in the global radial menu.
 ---@param items RadialMenuItem | RadialMenuItem[]
 function lib.addRadialItem(items)
-    if isUiKitRunning then
-        return exports.amzn_uikit:addRadialItem(items)
+    local invokingResource = GetInvokingResource()
+
+    if isUiKitRunning() then
+        return exports['envi-ui']:addRadialItem(items, invokingResource)
     end
 
     local menuSize = #menuItems
-    local invokingResource = GetInvokingResource()
 
     items = table.type(items) == 'array' and items or { items }
 
@@ -200,10 +204,6 @@ end
 ---Removes an item from the global radial menu with the given id.
 ---@param id string
 function lib.removeRadialItem(id)
-    if isUiKitRunning then
-        return exports.amzn_uikit:removeRadialItem(id)
-    end
-
     local menuItem
 
     for i = 1, #menuItems do
@@ -215,6 +215,11 @@ function lib.removeRadialItem(id)
         end
     end
 
+    if isUiKitRunning() then
+        exports['envi-ui']:removeRadialItem(id)
+        return
+    end
+
     if not isOpen then return end
 
     refreshRadial(id)
@@ -222,11 +227,12 @@ end
 
 ---Removes all items from the global radial menu.
 function lib.clearRadialItems()
-    if isUiKitRunning then
-        return exports.amzn_uikit:clearRadialItems()
-    end
-
     table.wipe(menuItems)
+
+    if isUiKitRunning() then
+        exports['envi-ui']:clearRadialItems()
+        return
+    end
 
     if isOpen then
         refreshRadial()
@@ -327,8 +333,8 @@ local isDisabled = false
 ---Disallow players from opening the radial menu.
 ---@param state boolean
 function lib.disableRadial(state)
-    if isUiKitRunning then
-        return exports.amzn_uikit:disableRadial(state)
+    if isUiKitRunning() then
+        return exports['envi-ui']:disableRadial(state)
     end
 
     isDisabled = state

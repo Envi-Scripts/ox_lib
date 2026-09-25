@@ -10,7 +10,9 @@
 local alert = nil
 local alertId = 0
 
-local isUiKitRunning = GetResourceState('amzn_uikit') == 'started'
+local function isUiKitRunning()
+    return GetResourceState('envi-ui') == 'started'
+end
 
 ---@class AlertDialogProps
 ---@field header string;
@@ -25,8 +27,8 @@ local isUiKitRunning = GetResourceState('amzn_uikit') == 'started'
 ---@param timeout? number Force the window to timeout after `x` milliseconds.
 ---@return 'cancel' | 'confirm' | nil
 function lib.alertDialog(data, timeout)
-    if isUiKitRunning then
-        return exports.amzn_uikit:alertDialog(data, timeout)
+    if isUiKitRunning() then
+        return exports['envi-ui']:alertDialog(data, timeout)
     end
 
     if alert then return end
@@ -52,8 +54,8 @@ end
 
 ---@param reason? string An optional reason for the window to be closed.
 function lib.closeAlertDialog(reason)
-    if isUiKitRunning then
-        return exports.amzn_uikit:closeAlertDialog(reason)
+    if isUiKitRunning() then
+        return exports['envi-ui']:closeAlertDialog(reason)
     end
     if not alert then return end
 
@@ -79,8 +81,8 @@ RegisterNUICallback('closeAlert', function(data, cb)
 end)
 
 RegisterNetEvent('ox_lib:alertDialog', function(data, timeout)
-    if isUiKitRunning then
-        return exports.amzn_uikit:alertDialog(data, timeout)
+    if isUiKitRunning() then
+        return exports['envi-ui']:alertDialog(data, timeout)
     end
 
     return lib.alertDialog(data, timeout)

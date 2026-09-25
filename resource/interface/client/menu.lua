@@ -11,7 +11,9 @@ local registeredMenus = {}
 ---@type MenuProps | nil
 local openMenu
 
-local isUiKitRunning = GetResourceState('amzn_uikit') == 'started'
+local function isUiKitRunning()
+    return GetResourceState('envi-ui') == 'started'
+end
 
 ---@alias MenuPosition 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
 ---@alias MenuChangeFunction fun(selected: number, scrollIndex?: number, args?: any, checked?: boolean)
@@ -46,8 +48,8 @@ local isUiKitRunning = GetResourceState('amzn_uikit') == 'started'
 ---@param data MenuProps
 ---@param cb? MenuChangeFunction
 function lib.registerMenu(data, cb)
-    if isUiKitRunning then
-        return exports.amzn_uikit:registerArrowMenu(data, cb)
+    if isUiKitRunning() then
+        return exports['envi-ui']:registerArrowMenu(data, cb, GetInvokingResource())
     end
 
     if not data.id then error('No menu id was provided.') end
@@ -60,8 +62,8 @@ end
 ---@param id string
 ---@param startIndex? number
 function lib.showMenu(id, startIndex)
-    if isUiKitRunning then
-        return exports.amzn_uikit:showArrowMenu(id, startIndex)
+    if isUiKitRunning() then
+        return exports['envi-ui']:showArrowMenu(id, startIndex)
     end
 
     local menu = registeredMenus[id]
@@ -106,8 +108,8 @@ function lib.showMenu(id, startIndex)
 end
 ---@param onExit boolean?
 function lib.hideMenu(onExit)
-    if isUiKitRunning then
-        return exports.amzn_uikit:hideArrowMenu(onExit)
+    if isUiKitRunning() then
+        return exports['envi-ui']:hideArrowMenu(onExit)
     end
 
     local menu = openMenu
@@ -130,8 +132,8 @@ end
 ---@param options MenuOptions | MenuOptions[]
 ---@param index? number
 function lib.setMenuOptions(id, options, index)
-    if isUiKitRunning then
-        return exports.amzn_uikit:setArrowMenuOptions(id, options, index)
+    if isUiKitRunning() then
+        return exports['envi-ui']:setArrowMenuOptions(id, options, index)
     end
 
     if index then
@@ -144,8 +146,8 @@ end
 
 ---@return string?
 function lib.getOpenMenu()
-    if isUiKitRunning then
-        return exports.amzn_uikit:getOpenArrowMenu()
+    if isUiKitRunning() then
+        return exports['envi-ui']:getOpenArrowMenu()
     end
 
     return openMenu and openMenu.id

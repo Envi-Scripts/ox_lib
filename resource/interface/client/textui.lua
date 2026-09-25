@@ -13,7 +13,9 @@
 ---@field style? string | table;
 ---@field alignIcon? 'top' | 'center';
 
-local isUiKitRunning = GetResourceState('amzn_uikit') == 'started'
+local function isUiKitRunning()
+    return GetResourceState('envi-ui') == 'started'
+end
 
 local isOpen = false
 local currentText
@@ -21,8 +23,8 @@ local currentText
 ---@param text string
 ---@param options? TextUIOptions
 function lib.showTextUI(text, options)
-    if isUiKitRunning then
-        return exports.amzn_uikit:showTextUI(text, options)
+    if isUiKitRunning() then
+        return exports['envi-ui']:showTextUI(text, options)
     end
 
     if currentText == text then return end
@@ -41,8 +43,8 @@ function lib.showTextUI(text, options)
 end
 
 function lib.hideTextUI()
-    if isUiKitRunning then
-        return exports.amzn_uikit:hideTextUI()
+    if isUiKitRunning() then
+        return exports['envi-ui']:hideTextUI()
     end
 
     SendNUIMessage({
@@ -55,8 +57,8 @@ end
 
 ---@return boolean, string | nil
 function lib.isTextUIOpen()
-    if isUiKitRunning then
-        return exports.amzn_uikit:isTextUIOpen()
+    if isUiKitRunning() then
+        return exports['envi-ui']:isTextUIOpen()
     end
 
     return isOpen, currentText

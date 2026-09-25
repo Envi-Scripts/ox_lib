@@ -9,7 +9,9 @@
 ---@type promise?
 local skillcheck
 
-local isUiKitRunning = GetResourceState('amzn_uikit') == 'started'
+local function isUiKitRunning()
+    return GetResourceState('envi-ui') == 'started'
+end
 
 ---@alias SkillCheckDifficulity 'easy' | 'medium' | 'hard' | { areaSize: number, speedMultiplier: number }
 
@@ -17,8 +19,8 @@ local isUiKitRunning = GetResourceState('amzn_uikit') == 'started'
 ---@param inputs string[]?
 ---@return boolean?
 function lib.skillCheck(difficulty, inputs)
-    if isUiKitRunning then
-        return exports.amzn_uikit:skillCheck(difficulty, inputs)
+    if isUiKitRunning() then
+        return exports['envi-ui']:skillCheck(difficulty, inputs)
     end
 
     if skillcheck then return end
@@ -37,8 +39,8 @@ function lib.skillCheck(difficulty, inputs)
 end
 
 function lib.cancelSkillCheck()
-    if isUiKitRunning then
-        return exports.amzn_uikit:cancelSkillCheck()
+    if isUiKitRunning() then
+        return exports['envi-ui']:cancelSkillCheck()
     end
 
     if not skillcheck then
@@ -50,8 +52,8 @@ end
 
 ---@return boolean
 function lib.skillCheckActive()
-    if isUiKitRunning then
-        return exports.amzn_uikit:skillCheckActive()
+    if isUiKitRunning() then
+        return exports['envi-ui']:skillCheckActive()
     end
 
     return skillcheck ~= nil

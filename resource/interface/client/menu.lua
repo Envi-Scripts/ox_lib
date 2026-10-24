@@ -11,8 +11,27 @@ local registeredMenus = {}
 ---@type MenuProps | nil
 local openMenu
 
+local enviMenuBridge
+
 local function isUiKitRunning()
     return GetResourceState('envi-ui') == 'started'
+end
+
+local function useEnviMenu()
+    if not isUiKitRunning() then return false end
+
+    if enviMenuBridge == nil then
+        enviMenuBridge = type(exports['envi-ui'].registerArrowMenu) == 'function'
+    end
+
+    return enviMenuBridge
+end
+
+local function syncEnviMenu(menu)
+    if not useEnviMenu() then return false end
+
+    exports['envi-ui']:registerArrowMenu(menu, menu.cb, menu.resource)
+    return true
 end
 
 ---@alias MenuPosition 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
@@ -54,19 +73,15 @@ function lib.registerMenu(data, cb)
     data.cb = cb
     data.resource = GetInvokingResource()
     registeredMenus[data.id] = data
-
-    if isUiKitRunning() then
-        exports['envi-ui']:registerArrowMenu(data, cb, data.resource)
-    end
 end
 
 ---@param id string
 ---@param startIndex? number
 function lib.showMenu(id, startIndex)
-    if isUiKitRunning() then
+    if useEnviMenu() then
         local menu = registeredMenus[id]
         if menu then
-            exports['envi-ui']:registerArrowMenu(menu, menu.cb, menu.resource)
+            syncEnviMenu(menu)
         end
         return exports['envi-ui']:showArrowMenu(id, startIndex)
     end
@@ -113,7 +128,7 @@ function lib.showMenu(id, startIndex)
 end
 ---@param onExit boolean?
 function lib.hideMenu(onExit)
-    if isUiKitRunning() then
+    if useEnviMenu() then
         return exports['envi-ui']:hideArrowMenu(onExit)
     end
 
@@ -147,15 +162,15 @@ function lib.setMenuOptions(id, options, index)
         menu.options = options
     end
 
-    if isUiKitRunning() then
-        exports['envi-ui']:registerArrowMenu(menu, menu.cb, menu.resource)
+    if useEnviMenu() then
+        syncEnviMenu(menu)
         return exports['envi-ui']:setArrowMenuOptions(id, options, index)
     end
 end
 
 ---@return string?
 function lib.getOpenMenu()
-    if isUiKitRunning() then
+    if useEnviMenu() then
         return exports['envi-ui']:getOpenArrowMenu()
     end
 

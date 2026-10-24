@@ -42,6 +42,10 @@ local menuHistory = {}
 ---@type RadialMenuProps?
 local currentRadial = nil
 
+---The registered menu opened directly with lib.showRadialMenu.
+---@type RadialMenuProps?
+local rootRadial = nil
+
 ---Open a the global radial menu or a registered radial submenu with the given id.
 ---@param id string?
 ---@param option number?
@@ -73,10 +77,58 @@ local function showRadial(id, option)
         action = 'openRadialMenu',
         data = {
             items = radial and radial.items or menuItems,
-            sub = radial and true or nil,
+            sub = radial and radial ~= rootRadial or nil,
             option = option
         }
     })
+end
+
+---Validates requirements and shows the requested radial menu.
+---@param id string? If not provided, the global radial menu will be shown.
+local function onRadialOpen(id)
+    if isUiKitRunning() then
+        if id then
+            return exports['envi-ui']:showRadialMenu(id)
+        end
+
+        return exports['envi-ui']:openRadial()
+    end
+
+    local radial = id and menus[id]
+
+    if isDisabled or (id and not radial) then return end
+
+    if isOpen then
+        if rootRadial == radial then
+            return lib.hideRadial()
+        end
+
+        rootRadial = radial
+        table.wipe(menuHistory)
+        return showRadial(id)
+    end
+
+    local items = radial and radial.items or menuItems
+    if #items == 0 or IsNuiFocused() or IsPauseMenuActive() then return end
+
+    isOpen = true
+    rootRadial = radial
+    table.wipe(menuHistory)
+
+    lib.setNuiFocus(true)
+    SetCursorLocation(0.5, 0.5)
+
+    showRadial(id)
+
+    while isOpen do
+        DisablePlayerFiring(cache.playerId, true)
+        DisableControlAction(0, 1, true)
+        DisableControlAction(0, 2, true)
+        DisableControlAction(0, 142, true)
+        DisableControlAction(2, 199, true)
+        DisableControlAction(2, 200, true)
+        Wait(0)
+    end
 end
 
 ---Refresh the current menu items or return from a submenu to its parent.
@@ -159,6 +211,7 @@ function lib.hideRadial()
 
     isOpen = false
     currentRadial = nil
+    rootRadial = nil
 end
 
 ---Registers an item or array of items in the global radial menu.
@@ -317,6 +370,7 @@ RegisterNUICallback('radialClose', function(_, cb)
 
     isOpen = false
     currentRadial = nil
+    rootRadial = nil
 end)
 
 RegisterNUICallback('radialTransition', function(_, cb)
@@ -342,6 +396,12 @@ function lib.disableRadial(state)
     if isOpen and state then
         return lib.hideRadial()
     end
+end
+
+---Shows a registered menu as root without affecting global menus.
+---@param id string
+function lib.showRadialMenu(id)
+    onRadialOpen(id)
 end
 
 -- lib.addKeybind({

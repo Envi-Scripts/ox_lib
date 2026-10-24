@@ -13,8 +13,20 @@
 ---@field style? string | table;
 ---@field alignIcon? 'top' | 'center';
 
+local enviTextBridge
+
 local function isUiKitRunning()
     return GetResourceState('envi-ui') == 'started'
+end
+
+local function useEnviText()
+    if not isUiKitRunning() then return false end
+
+    if enviTextBridge == nil then
+        enviTextBridge = type(exports['envi-ui'].showTextUI) == 'function'
+    end
+
+    return enviTextBridge
 end
 
 local isOpen = false
@@ -23,7 +35,7 @@ local currentText
 ---@param text string
 ---@param options? TextUIOptions
 function lib.showTextUI(text, options)
-    if isUiKitRunning() then
+    if useEnviText() then
         return exports['envi-ui']:showTextUI(text, options)
     end
 
@@ -43,7 +55,7 @@ function lib.showTextUI(text, options)
 end
 
 function lib.hideTextUI()
-    if isUiKitRunning() then
+    if useEnviText() then
         return exports['envi-ui']:hideTextUI()
     end
 
@@ -57,7 +69,7 @@ end
 
 ---@return boolean, string | nil
 function lib.isTextUIOpen()
-    if isUiKitRunning() then
+    if useEnviText() then
         return exports['envi-ui']:isTextUIOpen()
     end
 

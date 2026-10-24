@@ -7,7 +7,8 @@
 ]]
 
 ---@class Array<T> : OxClass, { [number]: T }
-lib.array = lib.class('Array')
+---@field private new ArrayConstructor
+lib.array = Class('Array')
 
 local table_unpack = table.unpack
 local table_remove = table.remove
@@ -17,6 +18,8 @@ local table_type = table.type
 
 ---@alias ArrayLike<T> Array | { [number]: T }
 
+---@class ArrayConstructor
+---@overload fun(self: Array, ...: unknown): Array
 ---@private
 function lib.array:constructor(...)
     local arr = { ... }
@@ -213,10 +216,10 @@ function lib.array:includes(element, fromIndex)
     return false
 end
 
----Concatenates all array elements into a string, seperated by commas or the specified seperator.
----@param seperator? string
-function lib.array:join(seperator)
-    return table_concat(self, seperator or ',')
+---Concatenates all array elements into a string, separated by commas or the specified separator.
+---@param separator? string
+function lib.array:join(separator)
+    return table_concat(self, separator or ',')
 end
 
 ---Create a new array containing the results from calling the provided function on every element in an array.

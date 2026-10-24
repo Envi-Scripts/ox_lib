@@ -4,7 +4,8 @@
 ---@class OxSelector: OxClass
 ---@field private sets OxSelectorSet | table<string, OxSelectorItem[]>
 ---@field private totalWeights table<string, number>
-local OxSelector = lib.class("OxSelector")
+---@field private new OxSelectorConstructor
+local OxSelector = Class("OxSelector")
 
 local DEFAULT_SET = 'default'
 local deepClone = lib.table.deepclone
@@ -22,7 +23,9 @@ local function calculateTotalWeight(set)
     return total
 end
 
-
+---@class OxSelectorConstructor
+---@overload fun(self: OxSelector, sets: OxSelectorSet | table<string, OxSelectorItem[]>): OxSelector
+---@private
 ---@param sets OxSelectorSet | table<string, OxSelectorItem[]>
 function OxSelector:constructor(sets)
     if type(sets) ~= "table" then

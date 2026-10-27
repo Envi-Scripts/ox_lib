@@ -223,7 +223,7 @@ function lib.addRadialItem(items, parentMenuId)
     local invokingResource = GetInvokingResource()
 
     if isUiKitRunning() then
-        return exports['envi-ui']:addRadialItem(items, invokingResource)
+        return exports['envi-ui']:addRadialItem(items, invokingResource, parentMenuId)
     end
 
     local targetMenu
@@ -274,7 +274,7 @@ end
 ---@param parentMenuId string? If provided, the item will be removed from the specified radial submenu instead of the global menu.
 function lib.removeRadialItem(id, parentMenuId)
     if isUiKitRunning() then
-        exports['envi-ui']:removeRadialItem(id)
+        exports['envi-ui']:removeRadialItem(id, parentMenuId, GetInvokingResource())
         return
     end
 
